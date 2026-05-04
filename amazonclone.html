@@ -84,8 +84,9 @@ const products = [
   { name:"Gaming Controller", price:39.99, img:"https://images.pexels.com/photos/442576/pexels-photo-442576.jpeg" },
   { name:"Travel Bag", price:49.99, img:"https://images.pexels.com/photos/1670765/pexels-photo-1670765.jpeg" }
 ];
-</script>
+
 let cart = [];
+
 function displayProducts(list = products) {
   document.getElementById("productList").innerHTML = list.map((p,i)=>`
     <div class="product">
@@ -96,6 +97,7 @@ function displayProducts(list = products) {
     </div>
   `).join('');
 }
+
 displayProducts();
 
 function addToCart(i) {
@@ -105,16 +107,29 @@ function addToCart(i) {
 
 function openCart() {
   document.getElementById("cartPopup").style.right = "0";
-  document.getElementById("cartItems").innerHTML = cart.map(i=>`<p>${i.name} - $${i.price}</p>`).join('');
+  document.getElementById("cartItems").innerHTML =
+    cart.map(i=>`<p>${i.name} - $${i.price}</p>`).join('');
 }
-function closeCart() { document.getElementById("cartPopup").style.right = "-400px"; }
 
-function openLogin(){ overlay.style.display="block"; loginPopup.style.display="block"; }
-function closeLogin(){ overlay.style.display="none"; loginPopup.style.display="none"; }
+function closeCart() {
+  document.getElementById("cartPopup").style.right = "-400px";
+}
+
+function openLogin(){
+  overlay.style.display="block";
+  loginPopup.style.display="block";
+}
+
+function closeLogin(){
+  overlay.style.display="none";
+  loginPopup.style.display="none";
+}
 
 document.getElementById("search").oninput = e => {
   const text = e.target.value.toLowerCase();
-  displayProducts(products.filter(p => p.name.toLowerCase().includes(text)));
+  displayProducts(products.filter(p =>
+    p.name.toLowerCase().includes(text)
+  ));
 };
 </script>
 
