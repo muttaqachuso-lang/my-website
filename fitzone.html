@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitZone Gym</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:sans-serif;background:#f4f4f4;}
+
+header,footer{background:#111;color:#fff;text-align:center;padding:1rem;}
+
+nav{display:flex;justify-content:space-between;align-items:center;}
+nav ul{display:flex;list-style:none;}
+nav ul li{margin-left:20px;}
+nav a{color:#fff;text-decoration:none;}
+
+#menu-toggle{display:none;font-size:24px;background:none;color:#fff;border:none;}
+ 
+section {
+  max-width: 1100px;
+  margin: 60px auto;   /* space between sections */
+  padding: 0 20px;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 30px; /* space under headings */
+}
+
+.cards, .stats, .gallery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 25px; /* space between items */
+}
+
+.card, .stat {
+  margin: 10px 0;
+}
+
+.hero {
+  background: url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&auto=format') center/cover no-repeat;
+  height: 90vh; /* makes it tall and wide */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+}
+
+.cards,.stats,.gallery{
+display:flex;flex-wrap:wrap;gap:20px;justify-content:center;
+}
+
+.card,.stat{
+background:#fff;padding:20px;border-radius:10px;width:250px;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.card img{
+width:100%;
+border-radius:10px;
+margin-bottom:10px;
+}
+
+.gallery img{
+width:250px;height:200px;object-fit:cover;border-radius:10px;
+}
+
+.testimonial{display:none;}
+.testimonial.active{display:block;}
+
+.testimonial img{
+width:80px;height:80px;border-radius:50%;
+margin-bottom:10px;
+}
+#testimonials {
+  text-align: center;
+}
+.testimonial {
+  text-align: center;
+  margin: 20px auto;
+}
+
+.testimonial {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centers image + text */
+  justify-content: center;
+}
+
+form{display:flex;flex-direction:column;gap:10px;max-width:400px;margin:auto;}
+
+input,textarea,button{padding:10px;border-radius:5px;border:1px solid #ccc;}
+button{background:#111;color:#fff;border:none;}
+
+#topBtn{position:fixed;bottom:20px;right:20px;display:none;padding:10px;}
+
+@media(max-width:768px){
+nav ul{display:none;flex-direction:column;}
+nav ul.show{display:flex;}
+#menu-toggle{display:block;}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<nav>
+<h1>FitZone</h1>
+<ul id="nav-links">
+<li><a href="#home">Home</a></li>
+<li><a href="#services">Services</a></li>
+<li><a href="#gallery">Gallery</a></li>
+<li><a href="#bmi">BMI</a></li>
+<li><a href="#contact">Contact</a></li>
+</ul>
+<button id="menu-toggle">☰</button>
+</nav>
+</header>
+
+<section class="hero" id="home">
+<h2>Transform Your Body. Transform Your Life.
+Join FitZone and unlock your strongest self.</h2>
+<p>Join FitZone and become strong</p>
+</section>
+
+<section id="services">
+<h2>Services</h2>
+<div class="cards">
+
+<div class="card">
+<img src="https://images.unsplash.com/photo-1599058917212-d750089bc07e">
+💪 Personal Training
+</div>
+
+<div class="card">
+<img src="https://images.unsplash.com/photo-1552196563-55cd4e45efb3">
+🧘 Yoga
+</div>
+
+<div class="card">
+<img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061">
+🥗 Diet Plans
+</div>
+
+</div>
+</section>
+
+<section id="stats">
+<h2>Stats</h2>
+<div class="stats">
+<div class="stat"><span class="counter" data-target="500">300</span>+ Members</div>
+<div class="stat"><span class="counter" data-target="120">20</span>+ Classes</div>
+</div>
+</section>
+
+<section id="gallery">
+<h2>Gallery</h2>
+<div class="gallery">
+<img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61">
+<img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438">
+<img src="https://images.unsplash.com/photo-1579758629938-03607ccdbaba">
+<img src="https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=800&auto=format">
+<img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format">
+<img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=800&auto=format">
+<img src="https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800&auto=format">
+<img src="https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=800&auto=format">
+
+</div>
+</section>
+
+<section id="bmi">
+<h2>BMI Calculator</h2>
+<form id="bmi-form">
+<input type="number" id="height" placeholder="Height cm" required>
+<input type="number" id="weight" placeholder="Weight kg" required>
+<button type="submit">Calculate</button>
+</form>
+<p id="bmi-result"></p>
+</section>
+
+<section>
+<h2>Testimonials</h2>
+
+<div class="testimonial active">
+<img src="https://randomuser.me/api/portraits/women/44.jpg">
+<p>"Amazing Gym!"</p>
+</div>
+
+<div class="testimonial">
+<img src="https://randomuser.me/api/portraits/men/32.jpg">
+<p>"Loved it!"</p>
+</div>
+
+</section>
+
+<section id="contact">
+<h2>Contact</h2>
+<form id="contact-form">
+<input type="text" placeholder="Name" required>
+<input type="email" placeholder="Email" required>
+<textarea placeholder="Message"></textarea>
+<button type="submit">Send</button>
+</form>
+</section>
+
+<button id="topBtn">⬆</button>
+
+<footer>
+<p>© 2025 FitZone</p>
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+document.getElementById('menu-toggle').onclick=()=>{
+document.getElementById('nav-links').classList.toggle('show');
+};
+
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+a.onclick=e=>{
+e.preventDefault();
+document.querySelector(a.getAttribute('href'))
+.scrollIntoView({behavior:'smooth'});
+};
+});
+
+document.getElementById('contact-form').onsubmit=e=>{
+e.preventDefault();
+alert("Message sent!");
+};
+
+document.getElementById('bmi-form').onsubmit=e=>{
+e.preventDefault();
+let h=height.value/100;
+let w=weight.value;
+let bmi=(w/(h*h)).toFixed(1);
+bmi-result.innerText="BMI: "+bmi;
+};
+
+let counters=document.querySelectorAll('.counter');
+counters.forEach(c=>{
+let target=+c.dataset.target;
+let count=0;
+let update=()=>{
+count+=target/50;
+if(count<target){
+c.innerText=Math.ceil(count);
+requestAnimationFrame(update);
+}else c.innerText=target;
+};
+update();
+});
+
+let i=0,t=document.querySelectorAll('.testimonial');
+setInterval(()=>{
+t[i].classList.remove('active');
+i=(i+1)%t.length;
+t[i].classList.add('active');
+},3000);
+
+let topBtn=document.getElementById('topBtn');
+window.onscroll=()=>{
+topBtn.style.display=window.scrollY>200?'block':'none';
+};
+topBtn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+
+});
+</script>
+
+</body>
+</html>
