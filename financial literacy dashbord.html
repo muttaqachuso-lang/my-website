@@ -1,0 +1,3598 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finly — Financial Literacy Dashboard</title>
+
+  <!-- React -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: [
+              "Inter",
+              "ui-sans-serif",
+              "system-ui",
+              "-apple-system",
+              "BlinkMacSystemFont",
+              "Segoe UI",
+              "sans-serif"
+            ]
+          },
+          colors: {
+            ink: "#171725",
+            brand: "#6759F5",
+            brandDark: "#5145D8",
+            mint: "#22C983",
+            soft: "#F6F6FA"
+          },
+          boxShadow: {
+            soft: "0 10px 40px rgba(25, 25, 45, .06)",
+            card: "0 4px 20px rgba(25, 25, 45, .045)"
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --brand: #6759f5;
+      --brand-dark: #5145d8;
+      --ink: #171725;
+      --muted: #8d91a3;
+      --line: #e9eaf0;
+      --surface: #ffffff;
+      --background: #f6f6fa;
+      --green: #22c983;
+      --red: #ef6262;
+      --amber: #f5ad3d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    ::selection {
+      background: rgba(103, 89, 245, .18);
+    }
+
+    .glass {
+      background: rgba(255,255,255,.84);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: 0 4px 22px rgba(25,25,45,.035);
+    }
+
+    .card-hover {
+      transition:
+        transform .22s ease,
+        box-shadow .22s ease,
+        border-color .22s ease;
+    }
+
+    .card-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 35px rgba(25,25,45,.07);
+      border-color: #dedee9;
+    }
+
+    .nav-item {
+      position: relative;
+      transition: all .2s ease;
+    }
+
+    .nav-item.active {
+      color: white;
+      background: linear-gradient(
+        135deg,
+        #7467ff,
+        #5b4fe5
+      );
+      box-shadow:
+        0 10px 24px rgba(103,89,245,.23),
+        inset 0 1px rgba(255,255,255,.16);
+    }
+
+    .nav-item:not(.active):hover {
+      background: #f5f5fa;
+      color: #272735;
+      transform: translateX(2px);
+    }
+
+    .dark .nav-item:not(.active):hover {
+      background: rgba(255,255,255,.05);
+      color: white;
+    }
+
+    .progress {
+      overflow: hidden;
+      border-radius: 999px;
+      background: #eeeeF4;
+    }
+
+    .progress > div {
+      height: 100%;
+      border-radius: inherit;
+      transition: width .65s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .fade-up {
+      animation: fadeUp .35s ease both;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-in {
+      animation: modalIn .22s ease both;
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .sidebar-in {
+      animation: sidebarIn .25s ease both;
+    }
+
+    @keyframes sidebarIn {
+      from {
+        transform: translateX(-100%);
+      }
+
+      to {
+        transform: translateX(0);
+      }
+    }
+
+    .number {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(130,135,155,.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(130,135,155,.08) 1px, transparent 1px);
+      background-size: 100% 54px, 70px 100%;
+    }
+
+    .tooltip {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(4px);
+      transition: .18s ease;
+    }
+
+    .tooltip-wrap:hover .tooltip {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .hide-scrollbar {
+      scrollbar-width: none;
+    }
+
+    @media (max-width: 1023px) {
+      .desktop-sidebar {
+        display: none;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .mobile-sidebar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+
+    const {
+      useState,
+      useMemo,
+      useEffect
+    } = React;
+
+    /* =========================================================
+       ICON COMPONENT
+    ========================================================= */
+
+    function Icon({
+      name,
+      size = 19,
+      stroke = 1.8
+    }) {
+
+      const paths = {
+        home: (
+          <>
+            <path d="M3 10.5 12 3l9 7.5" />
+            <path d="M5.5 9.5V21h13V9.5" />
+            <path d="M9.5 21v-6h5v6" />
+          </>
+        ),
+
+        wallet: (
+          <>
+            <path d="M4 7.5h14.5A2.5 2.5 0 0 1 21 10v7.5a2.5 2.5 0 0 1-2.5 2.5H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h13" />
+            <path d="M16 13h5" />
+            <circle cx="16" cy="13" r=".8" fill="currentColor" stroke="none" />
+          </>
+        ),
+
+        target: (
+          <>
+            <circle cx="12" cy="12" r="8.5" />
+            <circle cx="12" cy="12" r="4.5" />
+            <circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none" />
+          </>
+        ),
+
+        book: (
+          <>
+            <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21z" />
+            <path d="M4 5.5v15" />
+            <path d="M8 7h8M8 10.5h8M8 14h5" />
+          </>
+        ),
+
+        calculator: (
+          <>
+            <rect x="5" y="2.5" width="14" height="19" rx="2.5" />
+            <path d="M8 6.5h8" />
+            <path d="M8 11h2M14 11h2M8 15h2M14 15h2M8 19h2M14 19h2" />
+          </>
+        ),
+
+        settings: (
+          <>
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.6 1.6-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V20h-2.26v-.3a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.6-1.6.06-.06A1.7 1.7 0 0 0 8.8 15a1.7 1.7 0 0 0-1.56-1.03H7.0v-2.26h.24A1.7 1.7 0 0 0 8.8 10.68a1.7 1.7 0 0 0-.34-1.88l-.06-.06L10 7.14l.06.06a1.7 1.7 0 0 0 1.88.34A1.7 1.7 0 0 0 12.97 6V5.7h2.26V6a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.6 1.6-.06.06a1.7 1.7 0 0 0-.34 1.88 1.7 1.7 0 0 0 1.56 1.03h.24v2.26h-.24A1.7 1.7 0 0 0 19.4 15Z" />
+          </>
+        ),
+
+        search: (
+          <>
+            <circle cx="10.8" cy="10.8" r="6.8" />
+            <path d="m16 16 5 5" />
+          </>
+        ),
+
+        bell: (
+          <>
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+            <path d="M10 21h4" />
+          </>
+        ),
+
+        sun: (
+          <>
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" />
+          </>
+        ),
+
+        moon: (
+          <path d="M20.5 15.2A8.5 8.5 0 0 1 8.8 3.5 8.5 8.5 0 1 0 20.5 15.2Z" />
+        ),
+
+        menu: (
+          <>
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </>
+        ),
+
+        close: (
+          <>
+            <path d="m6 6 12 12M18 6 6 18" />
+          </>
+        ),
+
+        plus: (
+          <>
+            <path d="M12 5v14M5 12h14" />
+          </>
+        ),
+
+        arrowUp: (
+          <>
+            <path d="M7 17 17 7M9 7h8v8" />
+          </>
+        ),
+
+        arrowDown: (
+          <>
+            <path d="M7 7 17 17M9 17h8V9" />
+          </>
+        ),
+
+        chevron: (
+          <path d="m9 18 6-6-6-6" />
+        ),
+
+        down: (
+          <path d="m7 10 5 5 5-5" />
+        ),
+
+        more: (
+          <>
+            <circle cx="5" cy="12" r="1" fill="currentColor" stroke="none" />
+            <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
+            <circle cx="19" cy="12" r="1" fill="currentColor" stroke="none" />
+          </>
+        ),
+
+        check: (
+          <path d="m5 12 4 4L19 6" />
+        ),
+
+        spark: (
+          <>
+            <path d="m12 2 1.7 6.3L20 10l-6.3 1.7L12 18l-1.7-6.3L4 10l6.3-1.7Z" />
+            <path d="m19 17 .7 2.3L22 20l-2.3.7L19 23l-.7-2.3L16 20l2.3-.7Z" />
+          </>
+        ),
+
+        logout: (
+          <>
+            <path d="M10 5H5v14h5" />
+            <path d="M14 8l4 4-4 4M8 12h10" />
+          </>
+        ),
+
+        menuDots: (
+          <>
+            <circle cx="6" cy="12" r="1.4" fill="currentColor" stroke="none" />
+            <circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none" />
+            <circle cx="18" cy="12" r="1.4" fill="currentColor" stroke="none" />
+          </>
+        )
+      };
+
+      return (
+        <svg
+          width={size}
+          height={size}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          {paths[name]}
+        </svg>
+      );
+    }
+
+    /* =========================================================
+       HELPERS
+    ========================================================= */
+
+    const money = (value) =>
+      "₹" + Math.abs(value).toLocaleString("en-IN");
+
+    const navItems = [
+      ["Overview", "home"],
+      ["Budget", "wallet"],
+      ["Goals", "target"],
+      ["Learn", "book"],
+      ["Calculators", "calculator"]
+    ];
+
+    const initialTransactions = [
+      {
+        id: 1,
+        title: "Salary credited",
+        category: "Income",
+        amount: 42000,
+        date: "Today",
+        icon: "₹",
+        color: "green"
+      },
+      {
+        id: 2,
+        title: "Big Basket",
+        category: "Groceries",
+        amount: -1840,
+        date: "Today",
+        icon: "🛍️",
+        color: "purple"
+      },
+      {
+        id: 3,
+        title: "Rent payment",
+        category: "Housing",
+        amount: -12000,
+        date: "Aug 28",
+        icon: "⌂",
+        color: "blue"
+      },
+      {
+        id: 4,
+        title: "Uber",
+        category: "Transport",
+        amount: -620,
+        date: "Aug 27",
+        icon: "🚗",
+        color: "orange"
+      },
+      {
+        id: 5,
+        title: "Starbucks",
+        category: "Food & Drinks",
+        amount: -380,
+        date: "Aug 26",
+        icon: "☕",
+        color: "pink"
+      }
+    ];
+
+    /* =========================================================
+       LOGO
+    ========================================================= */
+
+    function Logo() {
+      return (
+        <div className="flex items-center gap-3">
+          <div
+            className="w-10 h-10 rounded-[13px] flex items-center justify-center text-white font-black text-[17px]"
+            style={{
+              background:
+                "linear-gradient(135deg,#7b6fff,#594cdf)",
+              boxShadow: "0 9px 22px rgba(103,89,245,.25)"
+            }}
+          >
+            F
+          </div>
+
+          <div>
+            <div className="font-black text-[19px] tracking-[-.04em]">
+              Finly
+            </div>
+
+            <div className="text-[8px] font-bold uppercase tracking-[.18em] text-slate-400">
+              Money made simple
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* =========================================================
+       APP
+    ========================================================= */
+
+    function App() {
+
+      const [page, setPage] = useState("Overview");
+      const [dark, setDark] = useState(false);
+      const [mobileOpen, setMobileOpen] = useState(false);
+      const [transactionOpen, setTransactionOpen] = useState(false);
+      const [notifications, setNotifications] = useState(false);
+      const [transactions, setTransactions] =
+        useState(initialTransactions);
+
+      const navigate = (nextPage) => {
+        setPage(nextPage);
+        setMobileOpen(false);
+      };
+
+      const addTransaction = (transaction) => {
+        setTransactions((prev) => [
+          transaction,
+          ...prev
+        ]);
+
+        setTransactionOpen(false);
+      };
+
+      useEffect(() => {
+        document.documentElement.classList.toggle(
+          "dark",
+          dark
+        );
+      }, [dark]);
+
+      return (
+        <div className={dark ? "dark" : ""}>
+
+          <div
+            className="min-h-screen"
+            style={{
+              background: dark ? "#0f1017" : "#f6f6fa",
+              color: dark ? "#f6f6fb" : "#171725"
+            }}
+          >
+
+            {/* =================================================
+                DESKTOP SIDEBAR
+            ================================================= */}
+
+            <aside
+              className="desktop-sidebar fixed left-0 top-0 bottom-0 w-[258px] border-r z-50 flex flex-col"
+              style={{
+                background: dark ? "#151720" : "#ffffff",
+                borderColor: dark
+                  ? "rgba(255,255,255,.08)"
+                  : "#e9eaf0"
+              }}
+            >
+
+              <div className="px-7 pt-7 pb-8">
+                <Logo />
+              </div>
+
+              <div className="px-4">
+
+                <div className="px-3 mb-3 text-[10px] font-black uppercase tracking-[.19em] text-slate-400">
+                  Workspace
+                </div>
+
+                <nav className="space-y-1">
+
+                  {navItems.map(([label, icon]) => (
+                    <button
+                      key={label}
+                      onClick={() => navigate(label)}
+                      className={
+                        "nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-semibold " +
+                        (
+                          page === label
+                            ? "active"
+                            : dark
+                              ? "text-slate-400"
+                              : "text-slate-500"
+                        )
+                      }
+                    >
+
+                      <Icon
+                        name={icon}
+                        size={18}
+                      />
+
+                      <span>{label}</span>
+
+                      {label === "Learn" && (
+                        <span
+                          className={
+                            "ml-auto text-[8px] px-1.5 py-1 rounded-md font-black " +
+                            (
+                              page === label
+                                ? "bg-white/15 text-white"
+                                : "bg-[#eeecff] text-[#6759f5]"
+                            )
+                          }
+                        >
+                          NEW
+                        </span>
+                      )}
+
+                    </button>
+                  ))}
+
+                </nav>
+              </div>
+
+              <div className="mt-auto p-4">
+
+                <div
+                  className="rounded-2xl p-4 mb-3"
+                  style={{
+                    background: dark
+                      ? "rgba(103,89,245,.12)"
+                      : "#f6f4ff"
+                  }}
+                >
+
+                  <div className="flex items-start gap-3">
+
+                    <div
+                      className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                      style={{
+                        background: dark
+                          ? "rgba(103,89,245,.2)"
+                          : "#ebe8ff",
+                        color: "#6759f5"
+                      }}
+                    >
+                      <Icon name="spark" size={15} />
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-black">
+                        Financial health
+                      </p>
+
+                      <p className="text-[10px] text-slate-400 mt-1">
+                        You're doing great.
+                      </p>
+                    </div>
+
+                  </div>
+
+                  <div className="flex justify-between items-center mt-4">
+
+                    <div className="progress h-1.5 flex-1">
+                      <div
+                        style={{
+                          width: "82%",
+                          background: "#6759f5"
+                        }}
+                      />
+                    </div>
+
+                    <span className="text-[10px] font-black text-[#6759f5] ml-3">
+                      82
+                    </span>
+
+                  </div>
+
+                </div>
+
+                <button
+                  className={
+                    "w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold " +
+                    (dark
+                      ? "text-slate-400 hover:bg-white/5"
+                      : "text-slate-500 hover:bg-slate-50")
+                  }
+                >
+                  <Icon name="settings" size={18} />
+                  Settings
+                </button>
+
+              </div>
+
+            </aside>
+
+            {/* =================================================
+                MOBILE DRAWER
+            ================================================= */}
+
+            {mobileOpen && (
+              <div
+                className="fixed inset-0 z-[80] lg:hidden"
+                onClick={() => setMobileOpen(false)}
+              >
+
+                <div className="absolute inset-0 bg-black/35 backdrop-blur-[2px]" />
+
+                <aside
+                  onClick={(e) => e.stopPropagation()}
+                  className="mobile-sidebar sidebar-in absolute left-0 top-0 bottom-0 w-[285px] p-5 flex flex-col"
+                  style={{
+                    background: dark
+                      ? "#151720"
+                      : "#fff"
+                  }}
+                >
+
+                  <div className="flex justify-between items-center mb-8">
+                    <Logo />
+
+                    <button
+                      onClick={() => setMobileOpen(false)}
+                      className="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-100 text-slate-500"
+                    >
+                      <Icon name="close" size={18} />
+                    </button>
+                  </div>
+
+                  <div className="text-[10px] font-black uppercase tracking-[.18em] text-slate-400 mb-3">
+                    Workspace
+                  </div>
+
+                  <nav className="space-y-1">
+
+                    {navItems.map(([label, icon]) => (
+                      <button
+                        key={label}
+                        onClick={() => navigate(label)}
+                        className={
+                          "nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-semibold " +
+                          (
+                            page === label
+                              ? "active"
+                              : dark
+                                ? "text-slate-400"
+                                : "text-slate-500"
+                          )
+                        }
+                      >
+                        <Icon name={icon} size={18} />
+                        {label}
+                      </button>
+                    ))}
+
+                  </nav>
+
+                  <div className="mt-auto">
+
+                    <button
+                      className={
+                        "w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold " +
+                        (dark
+                          ? "text-slate-400"
+                          : "text-slate-500")
+                      }
+                    >
+                      <Icon name="settings" size={18} />
+                      Settings
+                    </button>
+
+                  </div>
+
+                </aside>
+              </div>
+            )}
+
+            {/* =================================================
+                MAIN
+            ================================================= */}
+
+            <main className="lg:ml-[258px] min-h-screen">
+
+              {/* TOPBAR */}
+
+              <header
+                className="sticky top-0 z-40 h-[76px] px-5 sm:px-7 lg:px-9 border-b glass"
+                style={{
+                  background: dark
+                    ? "rgba(15,16,23,.88)"
+                    : "rgba(255,255,255,.88)",
+                  borderColor: dark
+                    ? "rgba(255,255,255,.07)"
+                    : "#e9eaf0"
+                }}
+              >
+
+                <div className="h-full flex items-center justify-between">
+
+                  <div className="flex items-center gap-3">
+
+                    <button
+                      onClick={() => setMobileOpen(true)}
+                      className="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center bg-slate-100 text-slate-600"
+                    >
+                      <Icon name="menu" size={19} />
+                    </button>
+
+                    <div className="hidden sm:block">
+                      <p className="text-[11px] text-slate-400 font-medium">
+                        Sunday, August 30, 2026
+                      </p>
+
+                      <p className="text-sm font-black mt-0.5">
+                        {page}
+                      </p>
+                    </div>
+
+                    <div className="sm:hidden">
+                      <p className="text-sm font-black">
+                        {page}
+                      </p>
+                    </div>
+
+                  </div>
+
+                  <div className="flex items-center gap-2">
+
+                    {/* Search */}
+
+                    <div
+                      className="hidden md:flex items-center gap-2 h-10 px-3 rounded-xl border"
+                      style={{
+                        background: dark
+                          ? "rgba(255,255,255,.04)"
+                          : "#fafafd",
+                        borderColor: dark
+                          ? "rgba(255,255,255,.08)"
+                          : "#ededf2"
+                      }}
+                    >
+
+                      <Icon
+                        name="search"
+                        size={16}
+                      />
+
+                      <input
+                        className="bg-transparent outline-none text-xs w-[135px]"
+                        placeholder="Search anything..."
+                      />
+
+                      <span className="text-[9px] text-slate-400 border border-slate-200 rounded px-1.5 py-0.5">
+                        ⌘ K
+                      </span>
+
+                    </div>
+
+                    {/* Theme */}
+
+                    <button
+                      onClick={() => setDark(!dark)}
+                      className="w-10 h-10 rounded-xl flex items-center justify-center"
+                      style={{
+                        background: dark
+                          ? "rgba(255,255,255,.06)"
+                          : "#f7f7fa",
+                        color: dark
+                          ? "#f4c95d"
+                          : "#6d7182"
+                      }}
+                      title="Toggle theme"
+                    >
+                      <Icon
+                        name={dark ? "sun" : "moon"}
+                        size={17}
+                      />
+                    </button>
+
+                    {/* Notification */}
+
+                    <div className="relative">
+
+                      <button
+                        onClick={() =>
+                          setNotifications(!notifications)
+                        }
+                        className="relative w-10 h-10 rounded-xl flex items-center justify-center"
+                        style={{
+                          background: dark
+                            ? "rgba(255,255,255,.06)"
+                            : "#f7f7fa"
+                        }}
+                      >
+                        <Icon
+                          name="bell"
+                          size={17}
+                        />
+
+                        <span
+                          className="absolute top-[9px] right-[9px] w-1.5 h-1.5 rounded-full"
+                          style={{
+                            background: "#ef6262"
+                          }}
+                        />
+                      </button>
+
+                      {notifications && (
+                        <div
+                          className="absolute right-0 top-12 w-[310px] rounded-2xl border p-4 shadow-2xl z-50"
+                          style={{
+                            background: dark
+                              ? "#1a1c26"
+                              : "#fff",
+                            borderColor: dark
+                              ? "rgba(255,255,255,.08)"
+                              : "#e8e9ef"
+                          }}
+                        >
+
+                          <div className="flex justify-between items-center">
+
+                            <h4 className="font-black text-sm">
+                              Notifications
+                            </h4>
+
+                            <span className="text-[10px] text-[#6759f5] font-bold">
+                              3 new
+                            </span>
+
+                          </div>
+
+                          <div className="mt-4 space-y-3">
+
+                            <Notice
+                              title="Budget looks healthy"
+                              text="You're under your spending target."
+                            />
+
+                            <Notice
+                              title="Goal milestone reached"
+                              text="Emergency fund crossed 65%."
+                            />
+
+                            <Notice
+                              title="New lesson available"
+                              text="Learn the basics of index funds."
+                            />
+
+                          </div>
+
+                        </div>
+                      )}
+
+                    </div>
+
+                    {/* Avatar */}
+
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black ml-1"
+                      style={{
+                        background: dark
+                          ? "rgba(103,89,245,.2)"
+                          : "#eceaff",
+                        color: "#6759f5"
+                      }}
+                    >
+                      AK
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </header>
+
+              {/* CONTENT */}
+
+              <div className="max-w-[1500px] mx-auto px-5 sm:px-7 lg:px-9 py-7 lg:py-9">
+
+                {page === "Overview" && (
+                  <Overview
+                    dark={dark}
+                    navigate={navigate}
+                    openTransaction={() =>
+                      setTransactionOpen(true)
+                    }
+                    transactions={transactions}
+                  />
+                )}
+
+                {page === "Budget" && (
+                  <BudgetPage dark={dark} />
+                )}
+
+                {page === "Goals" && (
+                  <GoalsPage dark={dark} />
+                )}
+
+                {page === "Learn" && (
+                  <LearnPage dark={dark} />
+                )}
+
+                {page === "Calculators" && (
+                  <CalculatorsPage dark={dark} />
+                )}
+
+              </div>
+
+            </main>
+
+            {/* TRANSACTION MODAL */}
+
+            {transactionOpen && (
+              <TransactionModal
+                dark={dark}
+                close={() => setTransactionOpen(false)}
+                save={addTransaction}
+              />
+            )}
+
+          </div>
+        </div>
+      );
+    }
+
+    /* =========================================================
+       NOTICE
+    ========================================================= */
+
+    function Notice({ title, text }) {
+
+      return (
+        <div className="flex gap-3">
+
+          <div className="w-8 h-8 rounded-lg bg-[#f0eeff] text-[#6759f5] flex items-center justify-center shrink-0">
+            <Icon name="spark" size={13} />
+          </div>
+
+          <div>
+            <p className="text-xs font-bold">
+              {title}
+            </p>
+
+            <p className="text-[10px] text-slate-400 mt-0.5">
+              {text}
+            </p>
+          </div>
+
+        </div>
+      );
+    }
+
+    /* =========================================================
+       OVERVIEW
+    ========================================================= */
+
+    function Overview({
+      dark,
+      navigate,
+      openTransaction,
+      transactions
+    }) {
+
+      return (
+        <div className="fade-up">
+
+          {/* HERO */}
+
+          <section className="flex flex-col xl:flex-row xl:items-end justify-between gap-5 mb-7">
+
+            <div>
+
+              <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[.17em] text-[#6759f5] mb-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#6759f5]" />
+                Your money, simplified
+              </div>
+
+              <h1 className="text-[30px] sm:text-[37px] lg:text-[42px] leading-[1.05] font-black tracking-[-.045em]">
+                Good afternoon, Muttaqa.
+              </h1>
+
+              <p className="text-sm text-slate-400 mt-3 max-w-xl">
+                You're making steady progress. Here's a clear
+                snapshot of your finances this month.
+              </p>
+
+            </div>
+
+            <div className="flex items-center gap-2">
+
+              <button
+                onClick={() => navigate("Learn")}
+                className="h-11 px-4 rounded-xl border text-xs font-bold flex items-center gap-2"
+                style={{
+                  background: dark
+                    ? "rgba(255,255,255,.04)"
+                    : "#fff",
+                  borderColor: dark
+                    ? "rgba(255,255,255,.08)"
+                    : "#e8e9ef"
+                }}
+              >
+                <Icon name="book" size={16} />
+                Learn something
+              </button>
+
+              <button
+                onClick={openTransaction}
+                className="h-11 px-4 rounded-xl bg-[#6759f5] text-white text-xs font-black flex items-center gap-2 shadow-lg shadow-indigo-200/50"
+              >
+                <Icon name="plus" size={16} />
+                Add transaction
+              </button>
+
+            </div>
+
+          </section>
+
+          {/* STAT CARDS */}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+
+            <StatCard
+              label="Total balance"
+              value="₹85,420"
+              change="+8.4%"
+              note="vs last month"
+              icon="wallet"
+              positive
+            />
+
+            <StatCard
+              label="Monthly income"
+              value="₹42,000"
+              change="+4.2%"
+              note="vs last month"
+              icon="arrowDown"
+              positive
+            />
+
+            <StatCard
+              label="Monthly spending"
+              value="₹27,650"
+              change="-6.8%"
+              note="vs last month"
+              icon="arrowUp"
+              positive
+            />
+
+            <StatCard
+              label="Savings rate"
+              value="34.2%"
+              change="+5.1%"
+              note="vs last month"
+              icon="target"
+              positive
+            />
+
+          </div>
+
+          {/* MAIN CHART + HEALTH */}
+
+          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_355px] gap-5 mt-5">
+
+            <CashFlow dark={dark} />
+
+            <FinancialHealth dark={dark} />
+
+          </div>
+
+          {/* BUDGET + SAVINGS */}
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+
+            <BudgetCard navigate={navigate} />
+
+            <SavingsCard />
+
+          </div>
+
+          {/* TRANSACTIONS + LEARNING */}
+
+          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_355px] gap-5 mt-5">
+
+            <TransactionsCard
+              transactions={transactions}
+              openTransaction={openTransaction}
+            />
+
+            <LearningCard navigate={navigate} />
+
+          </div>
+
+        </div>
+      );
+    }
+
+    /* =========================================================
+       STAT CARD
+    ========================================================= */
+
+    function StatCard({
+      label,
+      value,
+      change,
+      note,
+      icon,
+      positive
+    }) {
+
+      return (
+        <div className="card card-hover p-5">
+
+          <div className="flex justify-between gap-4">
+
+            <div>
+
+              <p className="text-[11px] font-medium text-slate-400">
+                {label}
+              </p>
+
+              <p className="number text-[25px] sm:text-[27px] font-black tracking-[-.035em] mt-2">
+                {value}
+              </p>
+
+              <div className="flex items-center gap-1.5 mt-2.5">
+
+                <span
+                  className={
+                    "text-[10px] font-black flex items-center gap-0.5 " +
+                    (positive
+                      ? "text-[#22a96f]"
+                      : "text-[#ef6262]")
+                  }
+                >
+                  <Icon
+                    name={
+                      positive
+                        ? "arrowUp"
+                        : "arrowDown"
+                    }
+                    size={12}
+                  />
+
+                  {change}
+                </span>
+
+                <span className="text-[10px] text-slate-400">
+                  {note}
+                </span>
+
+              </div>
+
+            </div>
+
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+              style={{
+                background: "#f0eeff",
+                color: "#6759f5"
+              }}
+            >
+              <Icon
+                name={icon}
+                size={18}
+              />
+            </div>
+
+          </div>
+
+        </div>
+      );
+    }
+
+    /* =========================================================
+       CASH FLOW
+    ========================================================= */
+
+    function CashFlow() {
+
+      const [range, setRange] =
+        useState("6 months");
+
+      return (
+        <div className="card p-5 sm:p-6">
+
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+
+            <div>
+              <div className="flex items-center gap-2">
+
+                <h2 className="font-black text-[15px]">
+                  Cash flow
+                </h2>
+
+                <span className="px-2 py-1 rounded-md bg-[#f0eeff] text-[#6759f5] text-[8px] uppercase tracking-wider font-black">
+                  Overview
+                </span>
+
+              </div>
+
+              <p className="text-[11px] text-slate-400 mt-1">
+                Income vs spending over time
+              </p>
+
+            </div>
+
+            <div className="flex gap-1 p-1 bg-slate-50 rounded-lg self-start">
+
+              {[
+                "3 months",
+                "6 months",
+                "1 year"
+              ].map((item) => (
+
+                <button
+                  key={item}
+                  onClick={() => setRange(item)}
+                  className={
+                    "px-2.5 py-1.5 rounded-md text-[9px] font-bold transition " +
+                    (
+                      range === item
+                        ? "bg-white shadow-sm text-slate-700"
+                        : "text-slate-400"
+                    )
+                  }
+                >
+                  {item}
+                </button>
+
+              ))}
+
+            </div>
+
+          </div>
+
+          <div className="mt-5 h-[280px] relative">
+
+            <div className="absolute inset-0 grid-bg rounded-2xl opacity-80" />
+
+            <svg
+              viewBox="0 0 760 280"
+              preserveAspectRatio="none"
+              className="absolute inset-0 w-full h-full"
+            >
+
+              <defs>
+
+                <linearGradient
+                  id="cashIncome"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="0"
+                    stopColor="#6759F5"
+                    stopOpacity=".20"
+                  />
+
+                  <stop
+                    offset="1"
+                    stopColor="#6759F5"
+                    stopOpacity="0"
+                  />
+                </linearGradient>
+
+                <linearGradient
+                  id="cashSpend"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="0"
+                    stopColor="#22C983"
+                    stopOpacity=".12"
+                  />
+
+                  <stop
+                    offset="1"
+                    stopColor="#22C983"
+                    stopOpacity="0"
+                  />
+                </linearGradient>
+
+              </defs>
+
+              <path
+                d="
+                  M0 174
+                  C55 166 92 132 138 141
+                  S224 156 275 116
+                  S364 91 410 103
+                  S505 88 552 111
+                  S644 73 760 52
+                  L760 280 L0 280 Z
+                "
+                fill="url(#cashIncome)"
+              />
+
+              <path
+                d="
+                  M0 210
+                  C60 197 93 181 138 190
+                  S225 204 275 175
+                  S361 158 410 164
+                  S500 143 552 165
+                  S650 149 760 128
+                  L760 280 L0 280 Z
+                "
+                fill="url(#cashSpend)"
+              />
+
+              <path
+                d="
+                  M0 174
+                  C55 166 92 132 138 141
+                  S224 156 275 116
+                  S364 91 410 103
+                  S505 88 552 111
+                  S644 73 760 52
+                "
+                fill="none"
+                stroke="#6759F5"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+              />
+
+              <path
+                d="
+                  M0 210
+                  C60 197 93 181 138 190
+                  S225 204 275 175
+                  S361 158 410 164
+                  S500 143 552 165
+                  S650 149 760 128
+                "
+                fill="none"
+                stroke="#22C983"
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+
+              {[
+                [0,174],
+                [138,141],
+                [275,116],
+                [410,103],
+                [552,111],
+                [760,52]
+              ].map(([x,y], i) => (
+                <circle
+                  key={i}
+                  cx={x}
+                  cy={y}
+                  r="4.5"
+                  fill="#6759F5"
+                  stroke="white"
+                  strokeWidth="3"
+                />
+              ))}
+
+            </svg>
+
+            <div className="absolute left-0 right-0 bottom-0 flex justify-between text-[10px] text-slate-400 px-1">
+              <span>Mar</span>
+              <span>Apr</span>
+              <span>May</span>
+              <span>Jun</span>
+              <span>Jul</span>
+              <span>Aug</span>
+            </div>
+
+          </div>
+
+          <div className="flex items-center gap-5 mt-4">
+
+            <Legend
+              color="#6759f5"
+              label="Income"
+            />
+
+            <Legend
+              color="#22c983"
+              label="Spending"
+            />
+
+            <span className="ml-auto text-[10px] text-slate-400 hidden sm:block">
+              Net positive this month
+              <b className="text-[#22a96f] ml-1">
+                +₹14,350
+              </b>
+            </span>
+
+          </div>
+
+        </div>
+      );
+    }
+
+    function Legend({
+      color,
+      label
+    }) {
+
+      return (
+        <span className="flex items-center gap-2 text-[10px] text-slate-400">
+
+          <span
+            className="w-2 h-2 rounded-full"
+            style={{ background: color }}
+          />
+
+          {label}
+
+        </span>
+      );
+    }
+
+    /* =========================================================
+       FINANCIAL HEALTH
+    ========================================================= */
+
+    function FinancialHealth() {
+
+      return (
+        <div className="card p-5 sm:p-6">
+
+          <div className="flex justify-between items-start">
+
+            <div>
+              <h2 className="font-black text-[15px]">
+                Financial health
+              </h2>
+
+              <p className="text-[11px] text-slate-400 mt-1">
+                Excellent progress this month
+              </p>
+            </div>
+
+            <div className="w-9 h-9 rounded-xl bg-[#f0eeff] text-[#6759f5] flex items-center justify-center">
+              <Icon name="spark" size={15} />
+            </div>
+
+          </div>
+
+          <div className="flex justify-center py-6">
+
+            <div className="relative w-[170px] h-[170px]">
+
+              <svg
+                viewBox="0 0 180 180"
+                className="-rotate-90 w-full h-full"
+              >
+
+                <circle
+                  cx="90"
+                  cy="90"
+                  r="67"
+                  fill="none"
+                  stroke="#eeeff4"
+                  strokeWidth="13"
+                />
+
+                <circle
+                  cx="90"
+                  cy="90"
+                  r="67"
+                  fill="none"
+                  stroke="#6759F5"
+                  strokeWidth="13"
+                  strokeLinecap="round"
+                  strokeDasharray="421"
+                  strokeDashoffset="76"
+                />
+
+              </svg>
+
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+
+                <span className="number text-[40px] leading-none font-black">
+                  82
+                </span>
+
+                <span className="text-[10px] text-slate-400 mt-1">
+                  out of 100
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <div className="space-y-4">
+
+            <HealthScore
+              name="Saving habits"
+              score={92}
+              label="Excellent"
+            />
+
+            <HealthScore
+              name="Budget discipline"
+              score={84}
+              label="Great"
+            />
+
+            <HealthScore
+              name="Debt management"
+              score={76}
+              label="Good"
+            />
+
+          </div>
+
+          <div className="mt-5 rounded-xl p-3.5 bg-[#f8f7ff] flex gap-2.5">
+
+            <Icon
+              name="spark"
+              size={14}
+            />
+
+            <p className="text-[10px] text-slate-500 leading-4">
+              Your biggest opportunity is keeping your
+              discretionary spending consistent.
+            </p>
+
+          </div>
+
+        </div>
+      );
+    }
+
+    function HealthScore({
+      name,
+      score,
+      label
+    }) {
+
+      return (
+        <div>
+
+          <div className="flex justify-between items-center mb-1.5">
+
+            <span className="text-[10px] text-slate-400">
+              {name}
+            </span>
+
+            <div className="flex items-center gap-2">
+
+              <span className="text-[9px] font-bold text-slate-400">
+                {label}
+              </span>
+
+              <b className="text-[10px]">
+                {score}
+              </b>
+
+            </div>
+
+          </div>
+
+          <div className="progress h-1.5">
+
+            <div
+              style={{
+                width: `${score}%`,
+                background: "#6759f5"
+              }}
+            />
+
+          </div>
+
+        </div>
+      );
+    }
+
+    /* =========================================================
+       BUDGET CARD
+    ========================================================= */
+
+    function BudgetCard({
+      navigate
+    }) {
+
+      const items = [
+        ["Housing", 10500, 12000, "#6759f5"],
+        ["Food", 6200, 8000, "#22c983"],
+        ["Transport", 3800, 5000, "#f5ad3d"],
+        ["Shopping", 2900, 3500, "#ec6198"]
+      ];
+
+      return (
+        <div className="card p-5 sm:p-6">
+
+          <div className="flex justify-between items-start">
+
+            <div>
+              <h2 className="font-black text-[15px]">
+                Monthly budget
+              </h2>
+
+              <p className="text-[11px] text-slate-400 mt-1">
+                ₹27,650 of ₹35,000 spent
+              </p>
+            </div>
+
+            <button
+              onClick={() => navigate("Budget")}
+              className="text-[10px] font-black text-[#6759f5]"
+            >
+              View budget →
+            </button>
+
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-7 mt-6">
+
+            <div className="relative w-[145px] h-[145px] shrink-0">
+
+              <svg
+                viewBox="0 0 160 160"
+                className="w-full h-full -rotate-90"
+              >
+
+                <circle
+                  cx="80"
+                  cy="80"
+                  r="58"
+                  fill="none"
+                  stroke="#eef0f4"
+                  strokeWidth="17"
+                />
+
+                <circle
+                  cx="80"
+                  cy="80"
+                  r="58"
+                  fill="none"
+                  stroke="#6759f5"
+                  strokeWidth="17"
+                  strokeDasharray="364"
+                  strokeDashoffset="77"
+                  strokeLinecap="round"
+                />
+
+              </svg>
+
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+
+                <b className="text-2xl font-black">
+                  79%
+                </b>
+
+                <span className="text-[9px] text-slate-400">
+                  used
+                </span>
+
+              </div>
+
+            </div>
+
+            <div className="flex-1 w-full space-y-3">
+
+              {items.map(([name, amount, limit, color]) => (
+
+                <div
+                  key={name}
+                  className="flex items-center justify-between"
+                >
+
+                  <div className="flex items-center gap-2">
+
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{
+                        background: color
+                      }}
+                    />
+
+                    <span className="text-[10px] text-slate-500">
+                      {name}
+                    </span>
+
+                  </div>
+
+                  <span className="text-[10px] font-black">
+                    {money(amount)}
+                  </span>
+
+                </div>
+
+              ))}
+
+            </div>
+
+          </div>
+
+        </div>
+      );
+    }
+
+    /* =========================================================
+       SAVINGS CARD
+    ========================================================= */
+
+    function SavingsCard() {
+
+      return (
+        <div className="card p-5 sm:p-6">
+
+          <div className="flex justify-between items-start">
+
+            <div>
+              <h2 className="font-black text-[15px]">
+                Savings goal
+              </h2>
+
+              <p className="text-[11px] text-slate-400 mt-1">
+                Emergency fund
+              </p>
+            </div>
+
+            <span className="text-[10px] px-2 py-1 rounded-md bg-[#f0eeff] text-[#6759f5] font-black">
+              68%
+            </span>
+
+          </div>
+
+          <div className="flex items-center gap-4 mt-7">
+
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl"
+              style={{
+                background: "#f0eeff"
+              }}
+            >
+              🛟
+            </div>
+
+            <div>
+
+              <p className="number text-[27px] font-black tracking-[-.035em]">
+                ₹68,000
+              </p>
+
+              <p className="text-[10px] text-slate-400 mt-0.5">
+                of ₹1,00,000 target
+              </p>
+
+            </div>
+
+          </div>
+
+          <div className="mt-7">
+
+            <div className="progress h-2.5">
+
+              <div
+                style={{
+                  width: "68%",
+                  background: "#6759f5"
+                }}
+              />
+
+            </div>
+
+            <div className="flex justify-between mt-2">
+
+              <span className="text-[10px] text-slate-400">
+                ₹68k saved
+              </span>
+
+              <span className="text-[10px] font-bold text-[#6759f5]">
+                ₹32k remaining
+              </span>
+
+            </div>
+
+          </div>
+
+          <div className="mt-6 rounded-2xl p-4 bg-[#f8f7ff]">
+
+            <div className="flex gap-2.5">
+
+              <Icon
+                name="spark"
+                size={14}
+              />
+
+              <p className="text-[10px] text-slate-500 leading-4">
+                At your current rate, you'll reach this goal
+                in approximately <b>4 months</b>.
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+      );
+    }
+
+    /* =========================================================
+       TRANSACTIONS
+    ========================================================= */
+
+    function TransactionsCard({
+      transactions,
+      openTransaction
+    }) {
+
+      return (
+        <div className="card p-5 sm:p-6">
+
+          <div className="flex items-start justify-between">
+
+            <div>
+              <h2 className="font-black text-[15px]">
+                Recent transactions
+              </h2>
+
+              <p className="text-[11px] text-slate-400 mt-1">
+                Your latest financial activity
+              </p>
+            </div>
+
+            <button
+              onClick={openTransaction}
+              className="w-9 h-9 rounded-xl bg-[#f0eeff] text-[#6759f5] flex items-center justify-center"
+            >
+              <Icon name="plus" size={16} />
+            </button>
+
+          </div>
+
+          <div className="mt-4">
+
+            {transactions.slice(0, 6).map((item) => (
+
+              <div
+                key={item.id}
+                className="flex items-center justify-between py-3.5 border-b last:border-0"
+                style={{
+                  borderColor: "#f0f0f4"
+                }}
+              >
+
+                <div className="flex items-center gap-3 min-w-0">
+
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-sm"
+                    style={{
+                      background:
+                        item.color === "green"
+                          ? "#e9faf3"
+                          : item.color === "orange"
+                            ? "#fff6e8"
+                            : item.color === "pink"
+                              ? "#fff0f6"
+                              : "#f2f0ff",
+                      color:
+                        item.color === "green"
+                          ? "#22a96f"
+                          : item.color === "orange"
+                            ? "#db921f"
+                            : "#6759f5"
+                    }}
+                  >
+                    {item.icon}
+                  </div>
+
+                  <div className="min-w-0">
+
+                    <p className="text-xs font-bold truncate">
+                      {item.title}
+                    </p>
+
+                    <p className="text-[10px] text-slate-400 mt-1">
+                      {item.category} · {item.date}
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <div className="text-right ml-4">
+
+                  <p
+                    className={
+                      "number text-xs font-black " +
+                      (
+                        item.amount > 0
+                          ? "text-[#22a96f]"
+                          : ""
+                      )
+                    }
+                  >
+                    {item.amount > 0 ? "+" : "-"}
+                    {money(item.amount)}
+                  </p>
+
+                  <p className="text-[9px] text-slate-400 mt-1">
+                    Completed
+                  </p>
+
+                </div>
+
+              </div>
+
+            ))}
+
+          </div>
+
+          <button className="w-full mt-4 py-2.5 rounded-xl text-[10px] font-black text-[#6759f5] bg-[#f8f7ff]">
+            View all transactions →
+          </button>
+
+        </div>
+      );
+    }
+
+    /* =========================================================
+       LEARNING CARD
+    ========================================================= */
+
+    function LearningCard({
+      navigate
+    }) {
+
+      return (
+        <div className="card p-5 sm:p-6">
+
+          <div className="flex items-center gap-3">
+
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{
+                background: "#f0eeff",
+                color: "#6759f5"
+              }}
+            >
+              <Icon name="book" size={17} />
+            </div>
+
+            <div>
+              <h2 className="font-black text-[15px]">
+                Learn & grow
+              </h2>
+
+              <p className="text-[10px] text-slate-400 mt-1">
+                12 lessons completed
+              </p>
+            </div>
+
+          </div>
+
+          <div className="mt-5 rounded-2xl p-5 bg-[#f8f7ff]">
+
+            <span className="text-[8px] font-black uppercase tracking-[.18em] text-[#6759f5]">
+              Recommended for you
+            </span>
+
+            <h3 className="font-black text-sm mt-2">
+              Master compound interest
+            </h3>
+
+            <p className="text-[10px] text-slate-500 leading-4 mt-2">
+              Discover why time can be your most powerful
+              investing advantage.
+            </p>
+
+            <button
+              onClick={() => navigate("Learn")}
+              className="mt-4 text-[10px] font-black text-[#6759f5] flex items-center gap-1"
+            >
+              Start lesson
+              <Icon name="arrowUp" size={12} />
+            </button>
+
+          </div>
+
+          <div className="mt-5">
+
+            <div className="flex justify-between">
+
+              <span className="text-[10px] text-slate-400">
+                Learning progress
+              </span>
+
+              <span className="text-[10px] font-black">
+                60%
+              </span>
+
+            </div>
+
+            <div className="progress h-1.5 mt-2">
+
+              <div
+                style={{
+                  width: "60%",
+                  background: "#6759f5"
+                }}
+              />
+
+            </div>
+
+          </div>
+
+        </div>
+      );
+    }
+
+    /* =========================================================
+       PAGE HEADER
+    ========================================================= */
+
+    function PageHeader({
+      title,
+      subtitle,
+      action
+    }) {
+
+      return (
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-7">
+
+          <div>
+
+            <div className="text-[9px] uppercase tracking-[.18em] font-black text-[#6759f5] mb-2">
+              Finly workspace
+            </div>
+
+            <h1 className="text-[31px] font-black tracking-[-.04em]">
+              {title}
+            </h1>
+
+            <p className="text-sm text-slate-400 mt-2">
+              {subtitle}
+            </p>
+
+          </div>
+
+          {action}
+
+        </div>
+      );
+    }
+
+    /* =========================================================
+       BUDGET PAGE
+    ========================================================= */
+
+    function BudgetPage() {
+
+      const [limit, setLimit] =
+        useState(35000);
+
+      const [saved, setSaved] =
+        useState(false);
+
+      const spent = 27650;
+
+      const percentage =
+        Math.min(
+          100,
+          Math.round((spent / limit) * 100)
+        );
+
+      const remaining =
+        Math.max(0, limit - spent);
+
+      const categories = [
+        {
+          name: "Housing",
+          spent: 10500,
+          budget: 12000,
+          color: "#6759f5"
+        },
+        {
+          name: "Food",
+          spent: 6200,
+          budget: 8000,
+          color: "#22c983"
+        },
+        {
+          name: "Transport",
+          spent: 3800,
+          budget: 5000,
+          color: "#f5ad3d"
+        },
+        {
+          name: "Shopping",
+          spent: 2900,
+          budget: 3500,
+          color: "#ec6198"
+        },
+        {
+          name: "Other",
+          spent: 4250,
+          budget: 6500,
+          color: "#9ca3b4"
+        }
+      ];
+
+      return (
+        <div className="fade-up">
+
+          <PageHeader
+            title="Budget"
+            subtitle="Build a spending plan that works for your real life."
+            action={
+              <button
+                onClick={() => setSaved(true)}
+                className="h-11 px-4 rounded-xl bg-[#6759f5] text-white text-xs font-black"
+              >
+                {saved ? "Budget saved ✓" : "Save budget"}
+              </button>
+            }
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+
+            <BudgetMetric
+              label="Monthly limit"
+              value={limit}
+              editable
+              onChange={setLimit}
+            />
+
+            <BudgetMetric
+              label="Spent this month"
+              value={spent}
+            />
+
+            <BudgetMetric
+              label="Remaining"
+              value={remaining}
+              green
+            />
+
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_370px] gap-5 mt-5">
+
+            <div className="card p-5 sm:p-6">
+
+              <div className="flex justify-between">
+
+                <div>
+                  <h2 className="font-black text-[15px]">
+                    Category breakdown
+                  </h2>
+
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    See where your monthly budget is going.
+                  </p>
+                </div>
+
+                <button className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
+                  <Icon name="more" size={16} />
+                </button>
+
+              </div>
+
+              <div className="mt-7 space-y-6">
+
+                {categories.map((category) => {
+
+                  const pct = Math.round(
+                    category.spent /
+                    category.budget *
+                    100
+                  );
+
+                  return (
+                    <div key={category.name}>
+
+                      <div className="flex justify-between">
+
+                        <div className="flex items-center gap-2">
+
+                          <span
+                            className="w-2.5 h-2.5 rounded-full"
+                            style={{
+                              background:
+                                category.color
+                            }}
+                          />
+
+                          <span className="text-xs font-bold">
+                            {category.name}
+                          </span>
+
+                        </div>
+
+                        <span className="text-[10px] text-slate-400">
+                          {money(category.spent)} / {money(category.budget)}
+                        </span>
+
+                      </div>
+
+                      <div className="progress h-2 mt-2">
+
+                        <div
+                          style={{
+                            width: `${pct}%`,
+                            background:
+                              category.color
+                          }}
+                        />
+
+                      </div>
+
+                      <div className="flex justify-between mt-1.5">
+
+                        <span className="text-[9px] text-slate-400">
+                          {pct}% used
+                        </span>
+
+                        <span className="text-[9px] font-bold">
+                          {money(
+                            Math.max(
+                              0,
+                              category.budget -
+                              category.spent
+                            )
+                          )} left
+                        </span>
+
+                      </div>
+
+                    </div>
+                  );
+                })}
+
+              </div>
+
+            </div>
+
+            <div className="card p-5 sm:p-6">
+
+              <h2 className="font-black text-[15px]">
+                Spending rule
+              </h2>
+
+              <p className="text-[11px] text-slate-400 mt-1">
+                A simple guideline for balancing your income.
+              </p>
+
+              <div className="mt-7 space-y-5">
+
+                <Rule
+                  name="Needs"
+                  value="50%"
+                  amount="₹21,000"
+                  width="50%"
+                  color="#6759f5"
+                />
+
+                <Rule
+                  name="Wants"
+                  value="30%"
+                  amount="₹12,600"
+                  width="30%"
+                  color="#ec6198"
+                />
+
+                <Rule
+                  name="Savings"
+                  value="20%"
+                  amount="₹8,400"
+                  width="20%"
+                  color="#22c983"
+                />
+
+              </div>
+
+              <div className="mt-7 p-4 rounded-2xl bg-[#f8f7ff]">
+
+                <div className="flex gap-2.5">
+
+                  <Icon name="spark" size={14} />
+
+                  <p className="text-[10px] leading-4 text-slate-500">
+                    The 50/30/20 rule is a starting point, not
+                    a strict formula. Adjust it to your goals.
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      );
+    }
+
+    function BudgetMetric({
+      label,
+      value,
+      editable,
+      onChange,
+      green
+    }) {
+
+      return (
+        <div className="card p-5">
+
+          <p className="text-[10px] text-slate-400">
+            {label}
+          </p>
+
+          {editable ? (
+            <div className="flex items-center mt-2">
+
+              <span className="text-2xl font-black mr-1">
+                ₹
+              </span>
+
+              <input
+                value={value}
+                type="number"
+                onChange={(e) =>
+                  onChange(
+                    Number(e.target.value)
+                  )
+                }
+                className="w-full bg-transparent outline-none text-2xl font-black"
+              />
+
+            </div>
+          ) : (
+            <p
+              className={
+                "number text-2xl font-black mt-2 " +
+                (green
+                  ? "text-[#22a96f]"
+                  : "")
+              }
+            >
+              {money(value)}
+            </p>
+          )}
+
+          {editable && (
+            <p className="text-[9px] text-slate-400 mt-2">
+              Click to edit your monthly limit
+            </p>
+          )}
+
+        </div>
+      );
+    }
+
+    function Rule({
+      name,
+      value,
+      amount,
+      width,
+      color
+    }) {
+
+      return (
+        <div>
+
+          <div className="flex justify-between">
+
+            <span className="text-xs font-bold">
+              {name}
+            </span>
+
+            <div className="text-right">
+              <span className="text-[10px] font-black">
+                {amount}
+              </span>
+
+              <span className="text-[9px] text-slate-400 ml-1">
+                {value}
+              </span>
+            </div>
+
+          </div>
+
+          <div className="progress h-2 mt-2">
+
+            <div
+              style={{
+                width,
+                background: color
+              }}
+            />
+
+          </div>
+
+        </div>
+      );
+    }
+
+    /* =========================================================
+       GOALS PAGE
+    ========================================================= */
+
+    function GoalsPage() {
+
+      const [goals, setGoals] = useState([
+        {
+          id: 1,
+          title: "Emergency fund",
+          icon: "🛟",
+          current: 68000,
+          target: 100000,
+          color: "#6759f5"
+        },
+        {
+          id: 2,
+          title: "New laptop",
+          icon: "💻",
+          current: 42000,
+          target: 75000,
+          color: "#22c983"
+        },
+        {
+          id: 3,
+          title: "Goa trip",
+          icon: "🏝️",
+          current: 18500,
+          target: 30000,
+          color: "#f5ad3d"
+        }
+      ]);
+
+      const addMoney = (id) => {
+
+        setGoals((old) =>
+          old.map((goal) => {
+
+            if (goal.id !== id) {
+              return goal;
+            }
+
+            return {
+              ...goal,
+              current: Math.min(
+                goal.target,
+                goal.current + 2500
+              )
+            };
+
+          })
+        );
+
+      };
+
+      const totalSaved =
+        goals.reduce(
+          (sum, goal) => sum + goal.current,
+          0
+        );
+
+      const totalTarget =
+        goals.reduce(
+          (sum, goal) => sum + goal.target,
+          0
+        );
+
+      return (
+        <div className="fade-up">
+
+          <PageHeader
+            title="Savings goals"
+            subtitle="Give every big plan a number, a deadline and a little momentum."
+            action={
+              <button
+                className="h-11 px-4 rounded-xl bg-[#6759f5] text-white text-xs font-black"
+              >
+                + New goal
+              </button>
+            }
+          />
+
+          <div className="card p-5 sm:p-6 bg-[#6759f5] text-white border-none overflow-hidden relative">
+
+            <div className="relative z-10">
+
+              <div className="text-[9px] uppercase tracking-[.18em] font-black text-indigo-200">
+                Overall progress
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mt-2">
+
+                <div>
+
+                  <p className="text-3xl sm:text-4xl font-black tracking-[-.04em]">
+                    {money(totalSaved)}
+                  </p>
+
+                  <p className="text-[11px] text-indigo-100 mt-1">
+                    saved across {goals.length} goals
+                  </p>
+
+                </div>
+
+                <div className="sm:text-right">
+
+                  <p className="text-xl font-black">
+                    {Math.round(
+                      totalSaved /
+                      totalTarget *
+                      100
+                    )}%
+                  </p>
+
+                  <p className="text-[10px] text-indigo-100">
+                    of {money(totalTarget)}
+                  </p>
+
+                </div>
+
+              </div>
+
+              <div className="h-2 bg-white/20 rounded-full mt-6 overflow-hidden">
+
+                <div
+                  className="h-full bg-white rounded-full"
+                  style={{
+                    width:
+                      `${Math.round(
+                        totalSaved /
+                        totalTarget *
+                        100
+                      )}%`
+                  }}
+                />
+
+              </div>
+
+            </div>
+
+            <div className="absolute -right-12 -bottom-20 w-56 h-56 rounded-full border border-white/10" />
+            <div className="absolute right-10 -bottom-32 w-64 h-64 rounded-full border border-white/10" />
+
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-5">
+
+            {goals.map((goal) => {
+
+              const pct = Math.round(
+                goal.current /
+                goal.target *
+                100
+              );
+
+              return (
+                <div
+                  key={goal.id}
+                  className="card card-hover p-6"
+                >
+
+                  <div className="flex justify-between">
+
+                    <div
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
+                      style={{
+                        background:
+                          goal.color + "14"
+                      }}
+                    >
+                      {goal.icon}
+                    </div>
+
+                    <button className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                      <Icon name="more" size={15} />
+                    </button>
+
+                  </div>
+
+                  <h3 className="font-black text-sm mt-5">
+                    {goal.title}
+                  </h3>
+
+                  <div className="flex justify-between items-end mt-2">
+
+                    <p className="number text-2xl font-black">
+                      {money(goal.current)}
+                    </p>
+
+                    <span className="text-[10px] text-slate-400">
+                      of {money(goal.target)}
+                    </span>
+
+                  </div>
+
+                  <div className="progress h-2.5 mt-5">
+
+                    <div
+                      style={{
+                        width: `${pct}%`,
+                        background: goal.color
+                      }}
+                    />
+
+                  </div>
+
+                  <div className="flex justify-between mt-2">
+
+                    <span className="text-[9px] text-slate-400">
+                      {pct}% complete
+                    </span>
+
+                    <span className="text-[9px] font-bold">
+                      {money(
+                        goal.target -
+                        goal.current
+                      )} left
+                    </span>
+
+                  </div>
+
+                  <button
+                    onClick={() => addMoney(goal.id)}
+                    className="w-full mt-5 py-3 rounded-xl text-[10px] font-black"
+                    style={{
+                      background: goal.color,
+                      color: "white"
+                    }}
+                  >
+                    Add ₹2,500
+                  </button>
+
+                </div>
+              );
+
+            })}
+
+          </div>
+
+          <div className="card p-5 mt-5">
+
+            <div className="flex items-start gap-3">
+
+              <div className="w-9 h-9 rounded-xl bg-[#f0eeff] text-[#6759f5] flex items-center justify-center">
+                <Icon name="spark" size={15} />
+              </div>
+
+              <div>
+
+                <h3 className="text-xs font-black">
+                  A little consistency goes a long way.
+                </h3>
+
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Adding ₹500 every week would put another
+                  ₹26,000 toward your goals over a year.
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      );
+    }
+
+    /* =========================================================
+       LEARN PAGE
+    ========================================================= */
+
+    function LearnPage() {
+
+      const [selected, setSelected] =
+        useState(null);
+
+      const lessons = [
+        {
+          title: "Master compound interest",
+          description:
+            "Understand how your money can grow exponentially when returns are reinvested.",
+          level: "Beginner",
+          time: "6 min",
+          icon: "✦"
+        },
+        {
+          title: "Build your emergency fund",
+          description:
+            "Learn how much cash to keep aside and how to make your safety net work for you.",
+          level: "Beginner",
+          time: "8 min",
+          icon: "🛟"
+        },
+        {
+          title: "Understand mutual funds",
+          description:
+            "A beginner-friendly introduction to mutual funds, SIPs and diversification.",
+          level: "Intermediate",
+          time: "12 min",
+          icon: "◈"
+        },
+        {
+          title: "How credit scores work",
+          description:
+            "Learn the factors that influence your credit score and how to build healthy credit.",
+          level: "Beginner",
+          time: "7 min",
+          icon: "◎"
+        },
+        {
+          title: "The basics of investing",
+          description:
+            "Stocks, bonds, index funds and risk explained without the jargon.",
+          level: "Intermediate",
+          time: "14 min",
+          icon: "↗"
+        },
+        {
+          title: "Avoid lifestyle inflation",
+          description:
+            "Learn how to increase your quality of life without letting spending rise endlessly.",
+          level: "Intermediate",
+          time: "9 min",
+          icon: "◆"
+        }
+      ];
+
+      return (
+        <div className="fade-up">
+
+          <PageHeader
+            title="Learn about money"
+            subtitle="Short, practical lessons that make financial concepts easier to understand."
+          />
+
+          <div className="rounded-[25px] p-7 sm:p-9 bg-[#6759f5] text-white relative overflow-hidden">
+
+            <div className="relative z-10 max-w-2xl">
+
+              <div className="inline-flex items-center gap-2 text-[9px] uppercase tracking-[.18em] font-black text-indigo-200">
+                <Icon name="spark" size={12} />
+                Your learning path
+              </div>
+
+              <h2 className="text-2xl sm:text-3xl font-black tracking-[-.035em] mt-3">
+                Become more confident with money.
+              </h2>
+
+              <p className="text-xs sm:text-sm text-indigo-100 leading-6 mt-3">
+                Learn one useful concept at a time, then apply it
+                directly to your own financial decisions.
+              </p>
+
+              <div className="flex items-center gap-4 mt-6">
+
+                <div className="flex -space-x-2">
+
+                  {["A","R","S"].map((letter) => (
+                    <div
+                      key={letter}
+                      className="w-8 h-8 rounded-full border-2 border-[#6759f5] bg-white/15 flex items-center justify-center text-[9px] font-black"
+                    >
+                      {letter}
+                    </div>
+                  ))}
+
+                </div>
+
+                <span className="text-[10px] text-indigo-100">
+                  Join 4,000+ learners building better money habits
+                </span>
+
+              </div>
+
+            </div>
+
+            <div className="absolute -right-10 -bottom-24 w-72 h-72 rounded-full border border-white/10" />
+            <div className="absolute right-20 -bottom-36 w-80 h-80 rounded-full border border-white/10" />
+
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-5">
+
+            {lessons.map((lesson) => (
+
+              <div
+                key={lesson.title}
+                className="card card-hover p-6"
+              >
+
+                <div className="flex justify-between">
+
+                  <div className="w-11 h-11 rounded-xl bg-[#f0eeff] text-[#6759f5] flex items-center justify-center text-lg font-black">
+                    {lesson.icon}
+                  </div>
+
+                  <span className="h-fit text-[9px] px-2 py-1.5 rounded-lg bg-slate-50 text-slate-400 font-bold">
+                    {lesson.time}
+                  </span>
+
+                </div>
+
+                <span className="block mt-5 text-[8px] uppercase tracking-[.18em] font-black text-[#6759f5]">
+                  {lesson.level}
+                </span>
+
+                <h3 className="font-black text-sm mt-2">
+                  {lesson.title}
+                </h3>
+
+                <p className="text-[10px] text-slate-400 leading-4 mt-2">
+                  {lesson.description}
+                </p>
+
+                <button
+                  onClick={() => setSelected(lesson)}
+                  className="w-full mt-5 py-3 rounded-xl bg-[#6759f5] text-white text-[10px] font-black"
+                >
+                  Start lesson
+                </button>
+
+              </div>
+
+            ))}
+
+          </div>
+
+          {selected && (
+            <LessonModal
+              lesson={selected}
+              close={() => setSelected(null)}
+            />
+          )}
+
+        </div>
+      );
+    }
+
+    /* =========================================================
+       CALCULATORS
+    ========================================================= */
+
+    function CalculatorsPage() {
+
+      const [principal, setPrincipal] =
+        useState(50000);
+
+      const [rate, setRate] =
+        useState(12);
+
+      const [years, setYears] =
+        useState(10);
+
+      const future =
+        Math.round(
+          principal *
+          Math.pow(
+            1 + rate / 100,
+            years
+          )
+        );
+
+      const growth =
+        future - principal;
+
+      return (
+        <div className="fade-up">
+
+          <PageHeader
+            title="Calculators"
+            subtitle="Turn financial assumptions into numbers you can actually understand."
+          />
+
+          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-5">
+
+            <div className="card p-6 sm:p-7">
+
+              <div className="w-11 h-11 rounded-xl bg-[#f0eeff] text-[#6759f5] flex items-center justify-center">
+                <Icon name="calculator" size={18} />
+              </div>
+
+              <h2 className="font-black text-lg mt-5">
+                Compound interest
+              </h2>
+
+              <p className="text-[11px] text-slate-400 mt-1">
+                See what a lump-sum investment could become over time.
+              </p>
+
+              <CalculatorInput
+                label="Initial investment"
+                value={principal}
+                setValue={setPrincipal}
+                prefix="₹"
+              />
+
+              <CalculatorInput
+                label="Annual return"
+                value={rate}
+                setValue={setRate}
+                suffix="%"
+              />
+
+              <CalculatorInput
+                label="Time period"
+                value={years}
+                setValue={setYears}
+                suffix="years"
+              />
+
+            </div>
+
+            <div className="card p-6 sm:p-7">
+
+              <p className="text-[10px] uppercase tracking-[.16em] font-black text-slate-400">
+                Estimated future value
+              </p>
+
+              <p className="number text-4xl sm:text-5xl font-black tracking-[-.05em] text-[#6759f5] mt-3">
+                {money(future)}
+              </p>
+
+              <div className="grid grid-cols-2 gap-3 mt-8">
+
+                <ResultBox
+                  label="Initial amount"
+                  value={money(principal)}
+                />
+
+                <ResultBox
+                  label="Estimated growth"
+                  value={money(growth)}
+                  green
+                />
+
+              </div>
+
+              <div className="mt-7">
+
+                <div className="flex justify-between text-[10px]">
+
+                  <span className="text-slate-400">
+                    Starting capital
+                  </span>
+
+                  <span className="font-bold">
+                    Growth
+                  </span>
+
+                </div>
+
+                <div className="h-8 rounded-xl overflow-hidden flex mt-2">
+
+                  <div
+                    style={{
+                      width:
+                        `${Math.max(
+                          5,
+                          principal /
+                          future *
+                          100
+                        )}%`,
+                      background: "#ddd9ff"
+                    }}
+                  />
+
+                  <div
+                    style={{
+                      flex: 1,
+                      background: "#6759f5"
+                    }}
+                  />
+
+                </div>
+
+              </div>
+
+              <div className="mt-6 rounded-2xl bg-[#f8f7ff] p-4">
+
+                <div className="flex gap-2.5">
+
+                  <Icon name="spark" size={14} />
+
+                  <p className="text-[10px] leading-4 text-slate-500">
+                    This is a mathematical estimate, not an
+                    investment guarantee. Real returns fluctuate.
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
+
+            <MiniCalculator
+              title="SIP calculator"
+              text="Estimate how regular monthly investing can grow."
+              icon="↗"
+            />
+
+            <MiniCalculator
+              title="Loan calculator"
+              text="Understand monthly payments and total interest."
+              icon="₹"
+            />
+
+            <MiniCalculator
+              title="Retirement planner"
+              text="Estimate how much you may need for retirement."
+              icon="◎"
+            />
+
+          </div>
+
+        </div>
+      );
+    }
+
+    function CalculatorInput({
+      label,
+      value,
+      setValue,
+      prefix,
+      suffix
+    }) {
+
+      return (
+        <div className="mt-6">
+
+          <label className="text-[10px] font-bold text-slate-500">
+            {label}
+          </label>
+
+          <div className="flex items-center mt-2 border border-slate-200 rounded-xl px-4 py-3 focus-within:border-[#6759f5] focus-within:ring-4 focus-within:ring-indigo-50 transition">
+
+            {prefix && (
+              <span className="text-slate-400 mr-2">
+                {prefix}
+              </span>
+            )}
+
+            <input
+              type="number"
+              value={value}
+              onChange={(e) =>
+                setValue(
+                  Number(e.target.value)
+                )
+              }
+              className="w-full outline-none bg-transparent text-sm font-black"
+            />
+
+            {suffix && (
+              <span className="text-slate-400 ml-2 text-xs">
+                {suffix}
+              </span>
+            )}
+
+          </div>
+
+        </div>
+      );
+    }
+
+    function ResultBox({
+      label,
+      value,
+      green
+    }) {
+
+      return (
+        <div className="rounded-2xl bg-slate-50 p-4">
+
+          <p className="text-[8px] uppercase tracking-[.13em] font-black text-slate-400">
+            {label}
+          </p>
+
+          <p
+            className={
+              "number text-sm font-black mt-2 " +
+              (green
+                ? "text-[#22a96f]"
+                : "")
+            }
+          >
+            {value}
+          </p>
+
+        </div>
+      );
+    }
+
+    function MiniCalculator({
+      title,
+      text,
+      icon
+    }) {
+
+      return (
+        <button className="card card-hover p-5 text-left">
+
+          <div className="w-10 h-10 rounded-xl bg-[#f0eeff] text-[#6759f5] flex items-center justify-center font-black">
+            {icon}
+          </div>
+
+          <h3 className="font-black text-sm mt-4">
+            {title}
+          </h3>
+
+          <p className="text-[10px] text-slate-400 leading-4 mt-1">
+            {text}
+          </p>
+
+          <span className="inline-flex items-center gap-1 text-[9px] font-black text-[#6759f5] mt-4">
+            Open calculator
+            <Icon name="chevron" size={12} />
+          </span>
+
+        </button>
+      );
+    }
+
+    /* =========================================================
+       TRANSACTION MODAL
+    ========================================================= */
+
+    function TransactionModal({
+      close,
+      save
+    }) {
+
+      const [type, setType] =
+        useState("expense");
+
+      const [amount, setAmount] =
+        useState("");
+
+      const [description, setDescription] =
+        useState("");
+
+      const [category, setCategory] =
+        useState("Food");
+
+      const submit = () => {
+
+        if (!amount || Number(amount) <= 0) {
+          return;
+        }
+
+        const transaction = {
+          id: Date.now(),
+          title:
+            description ||
+            (
+              type === "income"
+                ? "New income"
+                : "New expense"
+            ),
+          category:
+            type === "income"
+              ? "Income"
+              : category,
+          amount:
+            type === "income"
+              ? Number(amount)
+              : -Number(amount),
+          date: "Just now",
+          icon:
+            type === "income"
+              ? "₹"
+              : category === "Food"
+                ? "☕"
+                : category === "Transport"
+                  ? "🚗"
+                  : category === "Shopping"
+                    ? "🛍️"
+                    : "▢",
+          color:
+            type === "income"
+              ? "green"
+              : "purple"
+        };
+
+        save(transaction);
+      };
+
+      return (
+        <div
+          className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
+          onMouseDown={close}
+        >
+
+          <div
+            onMouseDown={(e) =>
+              e.stopPropagation()
+            }
+            className="modal-in w-full max-w-md rounded-[25px] bg-white p-6 shadow-2xl"
+          >
+
+            <div className="flex justify-between">
+
+              <div>
+
+                <h2 className="text-xl font-black">
+                  Add transaction
+                </h2>
+
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Keep your financial picture up to date.
+                </p>
+
+              </div>
+
+              <button
+                onClick={close}
+                className="w-9 h-9 rounded-xl bg-slate-50 text-slate-500 flex items-center justify-center"
+              >
+                <Icon name="close" size={17} />
+              </button>
+
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 mt-6">
+
+              <button
+                onClick={() => setType("expense")}
+                className={
+                  "py-3 rounded-xl text-[10px] font-black transition " +
+                  (
+                    type === "expense"
+                      ? "bg-[#6759f5] text-white"
+                      : "bg-slate-50 text-slate-500"
+                  )
+                }
+              >
+                Expense
+              </button>
+
+              <button
+                onClick={() => setType("income")}
+                className={
+                  "py-3 rounded-xl text-[10px] font-black transition " +
+                  (
+                    type === "income"
+                      ? "bg-[#22c983] text-white"
+                      : "bg-slate-50 text-slate-500"
+                  )
+                }
+              >
+                Income
+              </button>
+
+            </div>
+
+            <label className="block text-[10px] font-bold text-slate-500 mt-5">
+              Amount
+            </label>
+
+            <div className="flex items-center border border-slate-200 rounded-xl px-4 py-3 mt-2 focus-within:border-[#6759f5]">
+
+              <span className="text-slate-400 mr-2">
+                ₹
+              </span>
+
+              <input
+                autoFocus
+                type="number"
+                value={amount}
+                onChange={(e) =>
+                  setAmount(e.target.value)
+                }
+                placeholder="0"
+                className="w-full outline-none text-sm font-black"
+              />
+
+            </div>
+
+            <label className="block text-[10px] font-bold text-slate-500 mt-4">
+              Description
+            </label>
+
+            <input
+              value={description}
+              onChange={(e) =>
+                setDescription(e.target.value)
+              }
+              placeholder={
+                type === "income"
+                  ? "e.g. Freelance payment"
+                  : "e.g. Grocery shopping"
+              }
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 mt-2 outline-none text-sm focus:border-[#6759f5]"
+            />
+
+            {type === "expense" && (
+              <>
+                <label className="block text-[10px] font-bold text-slate-500 mt-4">
+                  Category
+                </label>
+
+                <select
+                  value={category}
+                  onChange={(e) =>
+                    setCategory(e.target.value)
+                  }
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 mt-2 bg-white outline-none text-sm"
+                >
+                  <option>Food</option>
+                  <option>Housing</option>
+                  <option>Transport</option>
+                  <option>Shopping</option>
+                  <option>Other</option>
+                </select>
+              </>
+            )}
+
+            <button
+              onClick={submit}
+              className={
+                "w-full mt-6 py-3.5 rounded-xl text-white text-[10px] font-black " +
+                (
+                  type === "income"
+                    ? "bg-[#22c983]"
+                    : "bg-[#6759f5]"
+                )
+              }
+            >
+              Save transaction
+            </button>
+
+          </div>
+
+        </div>
+      );
+    }
+
+    /* =========================================================
+       LESSON MODAL
+    ========================================================= */
+
+    function LessonModal({
+      lesson,
+      close
+    }) {
+
+      const [complete, setComplete] =
+        useState(false);
+
+      return (
+        <div
+          className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
+          onMouseDown={close}
+        >
+
+          <div
+            onMouseDown={(e) =>
+              e.stopPropagation()
+            }
+            className="modal-in w-full max-w-lg rounded-[25px] bg-white p-7 shadow-2xl"
+          >
+
+            <div className="flex justify-between">
+
+              <div className="w-12 h-12 rounded-2xl bg-[#f0eeff] text-[#6759f5] flex items-center justify-center text-xl font-black">
+                {lesson.icon}
+              </div>
+
+              <button
+                onClick={close}
+                className="w-9 h-9 rounded-xl bg-slate-50 text-slate-500 flex items-center justify-center"
+              >
+                <Icon name="close" size={17} />
+              </button>
+
+            </div>
+
+            <span className="block mt-6 text-[8px] uppercase tracking-[.2em] font-black text-[#6759f5]">
+              {lesson.level} · {lesson.time}
+            </span>
+
+            <h2 className="text-2xl font-black tracking-[-.03em] mt-2">
+              {lesson.title}
+            </h2>
+
+            <p className="text-sm text-slate-500 leading-6 mt-3">
+              {lesson.description}
+            </p>
+
+            <div className="mt-6 rounded-2xl bg-[#f8f7ff] p-5">
+
+              <h3 className="text-xs font-black">
+                Key idea
+              </h3>
+
+              <p className="text-[11px] text-slate-500 leading-5 mt-2">
+                Financial literacy becomes much easier when you
+                understand the underlying idea instead of
+                memorising complicated terminology.
+              </p>
+
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-slate-100 p-5">
+
+              <div className="flex gap-3">
+
+                <div className="w-7 h-7 rounded-lg bg-[#eafaf3] text-[#22a96f] flex items-center justify-center">
+                  <Icon name="check" size={13} />
+                </div>
+
+                <div>
+
+                  <p className="text-[10px] font-black">
+                    Practical takeaway
+                  </p>
+
+                  <p className="text-[10px] text-slate-400 leading-4 mt-1">
+                    Look for one small action you can apply to
+                    your finances after completing this lesson.
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <button
+              onClick={() => {
+                setComplete(true);
+
+                setTimeout(close, 650);
+              }}
+              className={
+                "w-full mt-6 py-3.5 rounded-xl text-white text-[10px] font-black " +
+                (
+                  complete
+                    ? "bg-[#22c983]"
+                    : "bg-[#6759f5]"
+                )
+              }
+            >
+              {complete
+                ? "Lesson completed ✓"
+                : "Mark as complete"}
+            </button>
+
+          </div>
+
+        </div>
+      );
+    }
+
+    /* =========================================================
+       START APP
+    ========================================================= */
+
+    ReactDOM
+      .createRoot(
+        document.getElementById("root")
+      )
+      .render(
+        <App />
+      );
+
+  </script>
+</body>
+</html>
